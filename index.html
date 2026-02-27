@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSL证书自助申请接口</title>
+    <style>
+        /* 全局重置与基础样式 */
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #eff6ff;
+            --secondary: #64748b;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-800: #1e293b;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius: 0.5rem;
+            --radius-lg: 0.75rem;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        body {
+            background-color: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* 容器与布局 */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: var(--spacing-lg);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--gray-200);
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: var(--gray-800);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            line-height: 1.2;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: var(--spacing-xl) 0 var(--spacing);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        h3 {
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: var(--spacing-lg) 0 var(--spacing-sm);
+        }
+
+        /* 文本与链接 */
+        p {
+            margin-bottom: var(--spacing);
+        }
+
+        ul, ol {
+            margin-bottom: var(--spacing);
+            padding-left: var(--spacing-xl);
+        }
+
+        li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        /* 表格样式 */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing) 0;
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .param-table th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+            text-align: left;
+            padding: var(--spacing);
+            border: 1px solid var(--gray-200);
+        }
+
+        .param-table td {
+            padding: var(--spacing);
+            border: 1px solid var(--gray-200);
+            vertical-align: top;
+        }
+
+        .param-table tr:nth-child(even) {
+            background-color: var(--gray-50);
+        }
+
+        /* 代码块样式 */
+        .code-block {
+            background-color: var(--gray-800);
+            color: #e5e7eb;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin: var(--spacing) 0;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .code-block.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* 提示框样式 */
+        .tip {
+            background-color: var(--warning-light);
+            border-left: 4px solid var(--warning);
+            padding: var(--spacing);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin: var(--spacing-lg) 0;
+        }
+
+        /* 头部信息 */
+        .header {
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .header p {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            h3 {
+                font-size: 1.1rem;
+            }
+
+            .card {
+                padding: var(--spacing);
+            }
+
+            .param-table th,
+            .param-table td {
+                padding: var(--spacing-sm);
+                font-size: 0.875rem;
+            }
+
+            .code-block {
+                padding: var(--spacing);
+                font-size: 0.8rem;
+            }
+
+            ul, ol {
+                padding-left: var(--spacing-lg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: var(--spacing-sm);
+            }
+
+            .card {
+                padding: var(--spacing-sm);
+                margin-bottom: var(--spacing-lg);
+            }
+
+            .param-table {
+                font-size: 0.8rem;
+            }
+
+            /* 移动端表格横向滚动 */
+            .table-wrapper {
+                overflow-x: auto;
+                margin: var(--spacing) 0;
+            }
+        }
+
+        /* API 区块样式 */
+        .api-section {
+            margin-bottom: var(--spacing-xl);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部信息 -->
+        <div class="header">
+            <h1>SSL证书自助申请接口</h1>
+            <p>版本：v1.0 | 开发、维护：小七安全团队</p>
+            <p>接口说明：基于 acme.sh 实现 DNS 手动解析的验证方式、实现自助申请、验证、下载功能</p>
+        </div>
+
+        <!-- 基础信息 -->
+        <div class="card">
+            <h2>基础信息</h2>
+            <ul>
+                <li>服务地址：https://ssl.prcvip.com/api</li>
+                <li>请求格式：JSON（Content-Type: application/json）</li>
+                <li>响应格式：JSON</li>
+            </ul>
+        </div>
+
+        <!-- 接口1：创建DNS验证记录 -->
+        <div class="card api-section">
+            <h2>接口1：创建 DNS 验证记录</h2>
+            
+            <h3>请求信息</h3>
+            <ul>
+                <li>请求方法：POST</li>
+                <li>请求路径：/api?action=create</li>
+                <li>Content-Type：application/json</li>
+            </ul>
+
+            <h3>请求参数</h3>
+            <div class="table-wrapper">
+                <table class="param-table">
+                    <tr>
+                        <th>参数名</th>
+                        <th>位置</th>
+                        <th>类型</th>
+                        <th>是否必填</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>action</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>固定值：create</td>
+                    </tr>
+                    <tr>
+                        <td>domain</td>
+                        <td>Body/Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>需要申请证书的域名，如：7x0.cn<br>格式要求：仅支持字母、数字、-、.，不能以-开头/结尾，每个段最长63字符</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>请求示例</h3>
+            <div class="code-block">
+POST /api?action=create HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{
+    "domain": "7x0.cn"
+}
+            </div>
+
+            <h3>成功响应示例</h3>
+            <div class="code-block success">
+{
+    "code": 200,
+    "message": "DNS 验证记录生成成功",
+    "data": {
+        "requestId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "txt_domain": "_acme-challenge.7x0.cn",
+        "txt_value": "EUq7UXkkqiCaYb4uNjNY0yMzf7D_cuMCEvgk3CFzQIQ",
+        "verify_url": "http://localhost:3000/api?action=verify&domain=7x0.cn",
+        "tips": [
+            "1. 请在域名解析后台添加 TXT 记录，主机记录为 _acme-challenge（无需加域名）",
+            "2. 添加后建议等待5-10分钟再验证（DNS 生效需要时间）",
+            "3. 验证记录有效期24小时，超时需重新生成",
+            "4. \"Cannot find DNS API hook for: dns_manual\" 是正常提示，无需处理",
+            "5. 验证前请用命令验证 TXT 记录是否生效：nslookup -type=TXT _acme-challenge.7x0.cn"
+        ]
+    }
+}
+            </div>
+
+            <h3>失败响应示例</h3>
+            <div class="code-block error">
+{
+    "code": 500,
+    "message": "命令执行失败",
+    "data": {
+        "requestId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "debug_info": {}
+    }
+}
+            </div>
+        </div>
+
+        <!-- 接口2：验证DNS并生成证书 -->
+        <div class="card api-section">
+            <h2>接口2：验证 DNS 并生成证书</h2>
+            
+            <h3>请求信息</h3>
+            <ul>
+                <li>请求方法：GET</li>
+                <li>请求路径：/api?action=verify&domain=xxx</li>
+            </ul>
+
+            <h3>请求参数</h3>
+            <div class="table-wrapper">
+                <table class="param-table">
+                    <tr>
+                        <th>参数名</th>
+                        <th>位置</th>
+                        <th>类型</th>
+                        <th>是否必填</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>action</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>固定值：verify</td>
+                    </tr>
+                    <tr>
+                        <td>domain</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>需要验证的域名，需与创建验证记录时的域名一致</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>请求示例</h3>
+            <div class="code-block">
+GET /api?action=verify&domain=7x0.cn HTTP/1.1
+Host: localhost:3000
+            </div>
+
+            <h3>成功响应示例</h3>
+            <div class="code-block success">
+{
+    "code": 200,
+    "message": "证书生成并打包成功",
+    "data": {
+        "requestId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "download_url": "http://localhost:3000/api?action=download&domain=7x0.cn&filename=7x0.cn_cert_1740600000000.zip",
+        "cert_files": [
+            "7x0.cn.cer",
+            "7x0.cn.key",
+            "fullchain.cer",
+            "ca.cer"
+        ],
+        "zip_file": "7x0.cn_cert_1740600000000.zip",
+        "tips": [
+            "1. 证书有效期通常为90天，请及时更新",
+            "2. 压缩包将在24小时后自动清理，请及时下载",
+            "3. 证书文件包含：域名证书、私钥、完整链证书、CA证书",
+            "4. 建议定期备份证书文件，避免丢失"
+        ]
+    }
+}
+            </div>
+
+            <div class="tip">
+                <strong>提示：</strong>验证过程会自动重试 3 次，每次间隔 10 秒；验证失败会精准提示 TXT 记录错误原因。
+            </div>
+        </div>
+
+        <!-- 接口3：下载证书压缩包 -->
+        <div class="card api-section">
+            <h2>接口3：下载证书压缩包</h2>
+            
+            <h3>请求信息</h3>
+            <ul>
+                <li>请求方法：GET</li>
+                <li>请求路径：/api?action=download&domain=xxx&filename=xxx.zip</li>
+            </ul>
+
+            <h3>请求参数</h3>
+            <div class="table-wrapper">
+                <table class="param-table">
+                    <tr>
+                        <th>参数名</th>
+                        <th>位置</th>
+                        <th>类型</th>
+                        <th>是否必填</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>action</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>固定值：download</td>
+                    </tr>
+                    <tr>
+                        <td>domain</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>证书对应的域名</td>
+                    </tr>
+                    <tr>
+                        <td>filename</td>
+                        <td>Query</td>
+                        <td>String</td>
+                        <td>是</td>
+                        <td>验证接口返回的 zip_file 文件名，格式：{domain}_cert_{timestamp}.zip</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>请求示例</h3>
+            <div class="code-block">
+GET /api?action=download&domain=7x0.cn&filename=7x0.cn_cert_1740600000000.zip HTTP/1.1
+Host: localhost:3000
+            </div>
+
+            <h3>响应说明</h3>
+            <ul>
+                <li>响应类型：application/zip</li>
+                <li>响应方式：流式下载，浏览器会自动触发文件保存</li>
+                <li>压缩包包含文件：{domain}.cer（域名证书）、{domain}.key（私钥）、fullchain.cer（完整链证书）、ca.cer（CA证书）</li>
+            </ul>
+
+            <div class="tip">
+                <strong>提示：</strong>压缩包文件会在生成后 24 小时自动清理，请及时下载；下载链接仅在文件有效期内有效。
+            </div>
+        </div>
+
+        <!-- 通用响应格式 -->
+        <div class="card">
+            <h2>通用响应格式</h2>
+            <div class="table-wrapper">
+                <table class="param-table">
+                    <tr>
+                        <th>字段名</th>
+                        <th>类型</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>code</td>
+                        <td>Number</td>
+                        <td>状态码：200 成功，400 参数错误，404 资源不存在，500 服务器错误</td>
+                    </tr>
+                    <tr>
+                        <td>message</td>
+                        <td>String</td>
+                        <td>响应提示信息</td>
+                    </tr>
+                    <tr>
+                        <td>data</td>
+                        <td>Object</td>
+                        <td>响应数据，包含 requestId（请求ID）和业务数据</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 错误码说明 -->
+        <div class="card">
+            <h2>常见错误码说明</h2>
+            <ul>
+                <li><strong>400</strong>：参数错误（域名为空、域名格式错误、操作类型无效、文件名错误等）</li>
+                <li><strong>404</strong>：资源不存在（验证信息不存在、证书压缩包不存在、接口路径错误）</li>
+                <li><strong>500</strong>：服务器错误（acme.sh 执行失败、证书文件读取失败、压缩包生成失败等）</li>
+                <li><strong>CORS 错误</strong>：请求域名不在 CORS 白名单中</li>
+            </ul>
+        </div>
+
+        <!-- 使用流程 -->
+        <div class="card">
+            <h2>使用流程</h2>
+            <ol>
+                <li>调用创建验证记录接口（POST /api?action=create），传入需要申请证书的域名</li>
+                <li>根据返回的 TXT 记录信息，在域名解析后台添加对应的 DNS TXT 记录</li>
+                <li>等待 5-10 分钟（DNS 生效时间），调用验证接口（GET /api?action=verify）验证 TXT 记录并生成证书</li>
+                <li>通过验证接口返回的下载链接，下载证书压缩包</li>
+                <li>解压压缩包，获取证书文件并部署到服务器</li>
+            </ol>
+        </div>
+
+        <!-- 注意事项 -->
+        <div class="card">
+            <h2>注意事项</h2>
+            <div class="tip">
+                <ul>
+                    <li>本服务为公益项目,请勿频繁请求或恶意请求，赞助请联系QQ：751667278</li> 
+                    <li>证书有效期约 90 天，需定期重新申请更新</li>
+                    <li>TXT 记录验证失败时，请检查记录值是否完全一致、DNS 是否全网生效、是否有多余的 TXT 记录</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

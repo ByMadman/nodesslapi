@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "cors": "^2.8.6",
+    "cron": "^4.4.0",
+    "express": "^5.2.1",
+    "uuid": "^8.3.2",
+    "winston": "^3.19.0"
+  }
+}
